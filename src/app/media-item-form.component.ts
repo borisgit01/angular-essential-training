@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
+import { MediaItemService } from './media-item.service';
+import { lookupListToken } from './providers';
 
 @Component({
   selector: 'mw-media-item-form',
@@ -9,15 +12,21 @@ import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, Valid
 export class MediaItemFormComponent implements OnInit {
     form: FormGroup;
 
+    constructor(
+        private formBuilder: FormBuilder,
+        private mediaItemService: MediaItemService,
+        @Inject(lookupListToken) public lookupLists
+    ) {}
+
     ngOnInit(): void {
-        this.form = new FormGroup({
-            medium: new FormControl('Movies'),
-            name: new FormControl('', Validators.compose([
+        this.form = this.formBuilder.group({
+            medium: this.formBuilder.control('Movies'),
+            name: this.formBuilder.control('', Validators.compose([
                 Validators.required,
                 Validators.pattern('[\\w\\-\\s\\/]+')
             ])),
             category: new FormControl(''),
-            year: new FormControl('', this.createYearValidator())
+            year: this.formBuilder.control('', this.createYearValidator())
         });
     }
 
@@ -41,6 +50,7 @@ export class MediaItemFormComponent implements OnInit {
     }
 
     onSubmit(mediaItem) {
-        console.log(mediaItem);
+        this.mediaItemService.add(mediaItem)
+        .subscribe;
     }
 }
